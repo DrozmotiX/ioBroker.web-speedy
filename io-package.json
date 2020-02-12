@@ -1,0 +1,129 @@
+{
+	"common": {
+		"name": "web-speedy",
+		"version": "0.1.0",
+		"news": {
+			"0.1.0": {
+				"en": "Beta release for public testing",
+				"de": "Beta-Version für öffentliche Tests",
+				"ru": "Бета-версия для публичного тестирования",
+				"pt": "Versão beta para testes públicos",
+				"nl": "Beta-release voor openbare tests",
+				"fr": "Version bêta pour les tests publics",
+				"it": "Versione beta per test pubblici",
+				"es": "Versión beta para pruebas públicas",
+				"pl": "Wersja beta do testów publicznych",
+				"zh-cn": "Beta版以供公共测试"
+			}
+		},
+		"title": "Web Speedy",
+		"titleLang": {
+			"en": "Web Speedy",
+			"de": "Web Speedy",
+			"ru": "Web Speedy",
+			"pt": "Web Speedy",
+			"nl": "Web Speedy",
+			"fr": "Web Speedy",
+			"it": "Web veloce",
+			"es": "Web Speedy",
+			"pl": "Szybka sieć",
+			"zh-cn": "网络快速"
+		},
+		"desc": {
+			"en": "Web-Speedy enables you to test your internet connection on a regular base and store results in ioBroker !",
+			"de": "Mit Web-Speedy können Sie Ihre Internetverbindung regelmäßig testen und die Ergebnisse in ioBroker speichern!",
+			"ru": "Web-Speedy позволяет вам регулярно проверять ваше интернет-соединение и сохранять результаты в ioBroker!",
+			"pt": "O Web-Speedy permite que você teste sua conexão com a Internet regularmente e armazene os resultados no ioBroker!",
+			"nl": "Met Web-Speedy kunt u uw internetverbinding regelmatig testen en resultaten opslaan in ioBroker!",
+			"fr": "Web-Speedy vous permet de tester votre connexion Internet sur une base régulière et de stocker les résultats dans ioBroker!",
+			"it": "Web-Speedy ti consente di testare la tua connessione Internet su base regolare e di archiviare i risultati in ioBroker!",
+			"es": "¡Web-Speedy le permite probar su conexión a Internet de forma regular y almacenar resultados en ioBroker!",
+			"pl": "Web-Speedy umożliwia regularne testowanie połączenia internetowego i zapisywanie wyników w ioBroker!",
+			"zh-cn": "Web-Speedy使您可以定期测试Internet连接并将结果存储在ioBroker中！"
+		},
+		"authors": [
+			"DutchmanNL <rdrozda86@gmail.com>"
+		],
+		"keywords": [
+			"speed",
+			"internet",
+			"web",
+			"iobroker"
+		],
+		"license": "MIT",
+		"noConfig": true,
+		"platform": "Javascript/Node.js",
+		"main": "main.js",
+		"icon": "web-speedy.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.web-speedy/master/admin/web-speedy.png",
+		"readme": "https://github.com/iobroker-community-adapters/ioBroker.web-speedy/blob/master/README.md",
+		"loglevel": "info",
+		"mode": "daemon",
+		"type": "network",
+		"compact": true,
+		"connectionType": "cloud",
+		"dataSource": "poll",
+		"materialize": true,
+		"dependencies": [
+			{
+				"js-controller": ">=1.4.2"
+			}
+		]
+	},
+	"native": {
+		"option1": true,
+		"option2": "42"
+	},
+	"objects": [],
+	"instanceObjects": [
+		{
+			"_id": "info",
+			"type": "channel",
+			"common": {
+				"name": "Information"
+			},
+			"native": {}
+		},
+		{
+			"_id": "info.connection",
+			"type": "state",
+			"common": {
+				"role": "indicator.connected",
+				"name": "Device or service connected",
+				"type": "boolean",
+				"read": true,
+				"write": false,
+				"def": false
+			},
+			"native": {}
+		},
+		{
+			"_id": "running",
+			"type": "state",
+			"common": {
+				"role": "info.status",
+				"name": "Currently Speed test in progress ?",
+				"type": "boolean",
+				"read": true,
+				"write": false,
+				"def": false
+			},
+			"native": {}
+		},
+		{
+			"_id": "test_auto_intervall",
+			"type": "state",
+			"common": {
+				"role": "state",
+				"name": "Intervall to run automatically tests with best-server",
+				"type": "number",
+				"read": true,
+				"write": true,
+				"def": 30,
+				"unit": "minutes"
+			},
+			"native": {}
+		}
+	]
+}
