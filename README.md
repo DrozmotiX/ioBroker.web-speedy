@@ -23,7 +23,7 @@ At first startup it will retrieve best-servers nearby based on ping results and 
 Web-Speedy is build in a way all execution is handled automatically, meaning you don't have a configuration page.
 However, you still can influance some things (see datapoints):
 
-- [test_auto_intervallIntervall]	Intervall time for automated test-execution (default = 60, if set to 0 no automated test will run !)
+- [test_auto_intervall]	Intervall time for automated test-execution (default = 60, if set to 0 no automated test will run !)
 - [test_best]						Run test now on best-server based on last ping results
 - [test_specific]					Use the dropdown list to choose one of the top 5 servers found in previous scan
 
@@ -33,6 +33,11 @@ If you like my work, please feel free to provide a personal donation
 [![Donate](https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.wled/master/admin/button.png)](http://paypal.me/DutchmanNL)
 
 ## Changelog
+
+### 0.1.1
+* (DutchmanNL) Fix wrong status "test runnig"
+* (DutchmanNL) Implement byte to bit calculation for test - results
+* (DutchmanNL) implement current speeds in kb/s during download
 
 ### 0.1.0
 * (DutchmanNL) Beta release for public testing

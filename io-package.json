@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "web-speedy",
-		"version": "0.1.0",
+		"version": "0.1.1",
 		"news": {
+			"0.1.1": {
+				"en": "MegaByte to Megabit calculation and current test speeds implemented",
+				"de": "MegaByte zu Megabit Berechnung und aktuelle Testgeschwindigkeiten implementiert",
+				"ru": "Реализован расчет от MegaByte до Megabit и текущие скорости тестирования",
+				"pt": "Cálculo de MegaByte para Megabit e velocidades de teste atuais implementadas",
+				"nl": "MegaByte naar Megabit-berekening en huidige testsnelheden geïmplementeerd",
+				"fr": "Calcul de MegaByte à Megabit et vitesses de test actuelles implémentées",
+				"it": "Calcolo da MegaByte a Megabit e velocità di test correnti implementate",
+				"es": "Cálculo de MegaByte a Megabit y velocidades de prueba actuales implementadas",
+				"pl": "Wprowadzono obliczenia od MegaByte do Megabit i wdrożono bieżące prędkości testowe",
+				"zh-cn": "兆字节到兆比特的计算和当前测试速度的实现"
+			},
 			"0.1.0": {
 				"en": "Beta release for public testing",
 				"de": "Beta-Version für öffentliche Tests",
