@@ -8,10 +8,12 @@
 // you need to create an adapter
 const utils = require('@iobroker/adapter-core');
 
-// Load your modules here, e.g.:
+// Load speedtest-net thank you @ddsol !
 const state_attr = require(__dirname + '/lib/state_attr.js');
+const speedTest = require('speedtest-net');
 
-let test_running = false, down_ready = null, up_ready = null, intervall_time = null, timer = null, stop_timer = null;
+// Declare used varaibles
+let run_test = null, test_running = false, down_ready = null, up_ready = null, intervall_time = null, timer = null, stop_timer = null, test_duration = null, test_server = null;
 
 // const fs = require("fs");
 
@@ -28,110 +30,138 @@ class WebSpeedy extends utils.Adapter {
 		this.on('ready', this.onReady.bind(this));
 		this.on('stateChange', this.onStateChange.bind(this));
 		this.on('unload', this.onUnload.bind(this));
-		this.bestServers = [];
 	}
 
 	/**
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
-		// Reset the connection indicator during startup
+		// Reset the connection & statuus indicators during startup
 		this.setState('info.connection', false, true);
 		this.setNotRunning(true);
 
-		// Create state to manually run test 
-		this.create_state('test_best', 'test_best', false);
-  
-		// Create State for Download indicator
+		// Create state to manually run test & sped indicators
+		this.create_state('test_best', 'test_best', false);  
 		this.create_state('running_download', 'running_download', false);
-		// Create State for Upload indicator
 		this.create_state('running_upload', 'running_upload', false);
 
-		// Subscribe to important states
+		// Subscribe to configuration states
 		this.subscribeStates('test_best');
 		this.subscribeStates('test_auto_intervall');
+		this.subscribeStates('test_duration');
+		this.subscribeStates('test_specific_id_once');
+		this.subscribeStates('test_specific_id_always');
 
-		// Initial run to get best-servers and run a first test creating all wanted data-points
-		this.log.info('Web Speedy  startet, getting list of closest servers ');
-		this.setRunning();
-		await this.test_run();
 		// Shedule automated execution
 		await this.intervall_runner();
-		this.log.info('Automated scan every : ' + intervall_time + ' minutes :-)');
+
+		// Initial run to get best-servers and run a first test creating all wanted data-points
+		// Ignore if no automated intervall time is set
+		if (intervall_time !== 0) {
+			this.log.info('Web Speedy  startet, getting list of closest servers ');
+			await this.test_run();
+			this.log.info('Automated scan every : ' + intervall_time + ' minutes :-)');
+		}
 	}
 
 	async test_run(target_server){
-		this.log.info('The speed test has been started ... ');		
-		if (!target_server) {
-			// Run test om specific server
-			require('speedtest-net')({maxTime: 5000, serverId: target_server });
+
+		// Get configuration of max duration time for scans
+		const duration_time = await this.getStateAsync('test_duration');
+		if (!duration_time || (duration_time.val * 1000) < 5000) {
+			this.log.warn('Invalid value set for test duration, ignoring value  and set to default');
+			test_duration = 15000;
+			await this.setStateAsync('test_duration', {val : 15, ack : true});
 		} else {
-			// run test on best server found
-			require('speedtest-net')({maxTime: 5000});
+			test_duration = duration_time.val * 1000;
 		}
 
+		// Get configuration of pecific server if configured for scan
+		const server_id = await this.getStateAsync('test_specific_id_always');
+		if (server_id !== null && server_id !== undefined) {test_server = server_id.val;}
+
+		// Execute test run, verify if  specific server is provided else run "normal" test getting best server automatically
+		if (!target_server) {
+			// Run test on provided server
+			run_test = speedTest({maxTime: test_duration, serverId: target_server});
+		} else if (test_server !== null){
+			// Run test on confured server
+			run_test = speedTest({maxTime: test_duration, serverId: test_server});
+			this.log.warn('!!! Warning : Automated server selection disabled running specific server only !!!');
+		} else {
+			// run test on best server found
+			run_test = speedTest({maxTime: test_duration});
+		}
+
+		this.log.info('The speed test has been started and will take at maximum ' + (test_duration / 1000) + ' seconds for a single test run');		
+
 		// Fired when an error occurs. The error is written to log when received.
-		require('speedtest-net')().on('error', err => {
+		run_test.on('error', err => {
 			this.log.error(err);
 
 			// Reset all states to non-running state
 			this.setState('info.connection', false, true);
-			this.setNotRunning();
+			this.setNotRunning(); // Reset all status indicators to not-running
 		});
 
-		// Test show config
-		require('speedtest-net')().on('config', config => {
+		// Fired when module has been triggered  providing configuration 
+		run_test.on('config', config => {
 			this.log.debug('Configuration info : ' + JSON.stringify(config));
 			
 			// Set all states to running state
 			this.setRunning();
 		});
 
-		// require('speedtest-net')().on('downloadprogress', progress => {
-		// 	this.log.info('Download progress:', progress);
-		// });
+		// Monitor download progress % (not working)
+		run_test.on('downloadprogress', progress => {
+			this.log.debug('Download progress : ' + progress);
+			this.create_state('running_download_progress', 'running_download_progress', progress);
 
-		// require('speedtest-net')().on('uploadprogress', progress => {
-		// 	this.log.info('Upload progress:', progress);
-		// });
+		});
 
-		// Monitor download speed
-		require('speedtest-net')().on('downloadspeed', speed => {
-			// this.setRunning();
-			down_ready = true;
+		// Monitor upload progress % (not working)
+		run_test.on('uploadprogress', progress => {
+			this.log.debug('Upload progress : ' + progress);
+			this.create_state('running_upload_progress', 'running_upload_progress', progress);
+		});
+
+		// Fired when download is finished
+		run_test.on('downloadspeed', speed => {
 			this.setState('running_download', false, true);	
 			this.setState('running_download_speed', 0, true);
 			this.log.debug('Download speed : ' + (speed * 125).toFixed(2));
 		});
 
-		require('speedtest-net')().on('uploadspeed', speed => {
-			// this.setRunning();
-			up_ready =  true;
+		// Fired when upload is finished
+		run_test.on('uploadspeed', speed => {
 			this.setState('running_upload', false, true);
 			this.setState('running_upload_speed', 0, true);
 			this.log.debug('Upload speed : ' + (speed * 125).toFixed(2));
 		});
 
-		require('speedtest-net')().on('downloadspeedprogress', speed => {
-			// this.setRunning();
+		// Monitor download speed kb/s
+		run_test.on('downloadspeedprogress', speed => {
 
 			this.log.debug('Download speed (in progress) : ' + (speed * 125).toFixed(2) + ' kb/s');
 			if (down_ready !== true){
+				down_ready = true;
 				this.setState('running_download', true, true);
-				this.create_state('running_download_speed', 'running_upload_speed', (speed * 125).toFixed(2));}
+			}
+			this.create_state('running_download_speed', 'running_upload_speed', (speed * 125).toFixed(2));
 		});
 
-		require('speedtest-net')().on('uploadspeedprogress', speed => {
-			// this.setRunning();
+		// Monitor upload speed kb/s
+		run_test.on('uploadspeedprogress', speed => {
 			this.log.debug('Upload speed (in progress) : ' + (speed * 125).toFixed(2) + ' kb/s');
 			if (up_ready !== true){
+				up_ready = true;
 				this.setState('running_upload', true, true);
-				this.create_state('running_upload_speed', 'running_upload_speed', (speed * 125).toFixed(2));
 			}
+			this.create_state('running_upload_speed', 'running_upload_speed', (speed * 125).toFixed(2));
 		});
 
-		// Execute when data is publish at test-end
-		// require('speedtest-net')().on('result', url => {
+		// Execute when data is publish at test-end (not working)
+		// run_test.on('result', url => {
 		// 	if (!url) {
 		// 		this.log.error('Could not successfully post test results.');
 		// 	} else {
@@ -139,13 +169,12 @@ class WebSpeedy extends utils.Adapter {
 		// 	}
 		// });
 
-		// Get best server results and write to states
-		require('speedtest-net')().on('bestservers', serverlist => {
-			// Reset the connection indicator during startup
+		// Get best server results and write to states and create drop-down menu to run specific test
+		run_test.on('bestservers', serverlist => {
 			this.setRunning();
 			this.log.debug('Closest servers : ' + JSON.stringify(serverlist));
-			this.bestServers = serverlist;
 
+			// Create channel for list of closest servers with all details
 			this.extendObject('Closest_servers', {
 				type: 'channel',
 				common: {
@@ -154,11 +183,14 @@ class WebSpeedy extends utils.Adapter {
 				native: {},
 			});
 
+			// Write Server details to states
 			try {
 				
+				// Loop array of server
 				for (const i in serverlist) {
 					this.log.debug('Closest server : ' + i + ' : ' + JSON.stringify(serverlist[i]));
 
+					// Create Server Channels
 					this.extendObject('Closest_servers.' + i, {
 						type: 'channel',
 						common: {
@@ -167,13 +199,13 @@ class WebSpeedy extends utils.Adapter {
 						native: {},
 					});
 
+					// Create and write information to states
 					for (const  x in serverlist[i]){
-
 						this.create_state('Closest_servers.' + i + '.' + x, x, serverlist[i][x]);
 					}
 				}
 
-				// Create state to run test on specific server (top 5 retrieved from scan)
+				// Create state to run test on specific server with drop-down menu(top 5 retrieved from scan)
 				this.extendObject('test_specific', {
 					type: 'state',
 					common: {
@@ -199,29 +231,22 @@ class WebSpeedy extends utils.Adapter {
 				this.log.error(error);
 			}
 
-			try {
-				// At server lookup a test is excuted, nomanuel trigger needed
-				this.log.info('Closest server found, running test');
-				
-			} catch (error) {
-				this.log.error(error);
-				
-			}
-				
+			this.log.info('Closest server found, running test');
+
 		});
 
-		// Get all test-result data (to much information)
-		require('speedtest-net')().on('done', dataOverload => {
+		// Get all test-result data (to much information, ignoring results)
+		// eslint-disable-next-line no-unused-vars
+		run_test.on('done', dataOverload => {
 			// this.log.info('Speed test finished, result : ' + JSON.stringify(dataOverload));
-			this.log.info('The speed test has completed successfully.');
-
-			this.setNotRunning();
-
+			this.log.info('The speed test has been completed successfully.');
+			this.setNotRunning(); // Reset all status indicators to not-running
 		});
 
-		// Write Speed-test results to state
-		require('speedtest-net')().on('data', data => {
+		// Fired at test end providing JSON-array with all  data
+		run_test.on('data', data => {
 			this.log.debug('Test Result Data : ' + JSON.stringify(data));
+			// Create channle for test-results
 			this.extendObject('Results', {
 				type: 'channel',
 				common: {
@@ -230,10 +255,12 @@ class WebSpeedy extends utils.Adapter {
 				native: {},
 			});
 
+			// Write Speed-test results to state
 			this.log.debug('Test results : ' + JSON.stringify(data));
 			this.create_state('Results.Last_Run', 'Last_Run_Timestamp', new Date());
 			for (const i in data) {
 
+				// Create channel for each cathegorie
 				this.extendObject('Results.' + i, {
 					type: 'channel',
 					common: {
@@ -242,13 +269,15 @@ class WebSpeedy extends utils.Adapter {
 					native: {},
 				});
 
+				// Loop data-array and write values to states
 				for (const  x in data[i]){
 
 					switch (x) {
 
+						// Make propper calculation for download speed in Mbit and MByte
 						case('download'):
-							this.create_state('Results.' + i + '.download_MB', 'download_MB', data[i][x]);
-							this.create_state('Results.' + i + '.download_Mb', 'download_Mb', (data[i][x] * 8));
+							this.create_state('Results.' + i + '.download_MB', 'download_MB', (data[i][x] / 8));
+							this.create_state('Results.' + i + '.download_Mb', 'download_Mb', data[i][x]);
 							break;
 	
 						case('upload'):
@@ -257,46 +286,69 @@ class WebSpeedy extends utils.Adapter {
 							break;
 	
 						default:
-
+							// Write alle regular states without conversion
 							this.create_state('Results.' + i + '.' + x, x, data[i][x]);
 					}
 
 				}
 			}
-			this.setNotRunning();
+			this.setNotRunning(); // Reset all status indicators to not-running
 		});
 	}
 
+	// Intervall timer to run automated tests
 	async intervall_runner(){
 
+		// Get intervall time configuration
 		intervall_time = await this.getStateAsync('test_auto_intervall');
 
+		// Propper handling of shedule, if NULL set to default (30 minutes)
 		if (!intervall_time || (intervall_time && intervall_time.val === null)) {
 			await this.setStateAsync('test_auto_intervall', {val : 30, ack : true});
 			intervall_time = 30;
 		} else if (intervall_time && intervall_time.val !== null){
 			intervall_time = intervall_time.val;
-			await this.setStateAsync('test_auto_intervall', {ack : true});
 		}
 
-		// Reset timer (if running) and start new one
 		this.log.debug('Start timer with : ' + (intervall_time * 60000));
-		if (timer) {clearTimeout(timer); timer = null;}
-		timer = setTimeout( () => {
-			this.log.info('Execute timer with : ' + (intervall_time * 60000) + ' Currently running : ' + test_running);
-			if (!test_running){
-				this.test_run();
-			}
-			this.intervall_runner();
-		}, (intervall_time * 60000));
+
+		// Disable time if test_auto_intervall is set to 0
+		if (intervall_time !== 0) {
+			// Reset timer (if running) and start new one
+			await this.setStateAsync('test_auto_intervall', {ack : true});
+			if (timer) {clearTimeout(timer); timer = null;}
+			timer = setTimeout( () => {
+				this.log.info('Execute timer with : ' + (intervall_time * 60000) + ' Currently running : ' + test_running);
+				if (!test_running){
+					this.test_run();
+				}
+				// Restart intervall at run
+				this.intervall_runner();
+
+				// Set timer, minutes to milliseconds
+			}, (intervall_time * 60000));
+
+		} else {
+			// 0 intervall time configured, disabling auto shedule
+			if (timer) {clearTimeout(timer); timer = null;}
+			this.log.warn('!!! Automated test disabled !!!');
+			await this.setStateAsync('test_auto_intervall', {ack : true});
+
+		}
 	}
 
+	// Handle configuration changes and test-start trigger
 	onStateChange(id, state) {
 		this.log.debug('State Change event : ' + id + ' value : ' + JSON.stringify(state));
+
+		// Check if valid state change is received with not-acknowledged value
 		if (state && state.ack === false) {
+
+			// Get state name
 			const deviceId = id.split('.');
 			const device = deviceId[2];
 
+			// Only handle cases for different states if not test is  currenlty running
 			if (!test_running) {
 
 				switch (device) {
@@ -311,25 +363,39 @@ class WebSpeedy extends utils.Adapter {
 						this.log.info('Manuel test startet on selected server ID : ' + state.val);
 						this.test_run(state.val);
 						this.setRunning();
-
 						break;
 
-					case('test_auto_intervall"'):
+					case('test_auto_intervall'):
+						this.intervall_runner();
+						this.setState('test_auto_intervall', {ack: true});
+						this.log.info('Automated scan changed to every : ' + state.val + ' minutes');
+						break;
 
+					case('test_duration'):
+						this.setState('test_duration', {ack: true});
+						this.log.info('Maximum test duration changed to  : ' + state.val + ' seconds');
+						break;
+
+					case('test_specific_id_once'):
+						this.setState('test_specific_id_once', {val: null, ack: true});
+						this.log.info('Run test once on specific server id : ' + state.val);
+						this.test_run(state.val);
+						this.setRunning();
+						break;
+
+					case('test_specific_id_always'):
+						this.setState('test_specific_id_always', {ack: true});
+						this.log.info('Changed default test server to  : ' + state.val);
+						this.log.warn('!!! Warning : Automated server selection disabled running specific server only !!!');
 						break;
 
 					default:
 				}
 			}
-
-			if (device === 'test_auto_intervall'){
-				// Reshedule intervalls
-				this.intervall_runner();
-				this.log.info('Automated scan changed to every : ' + state.val + ' minutes :-)');
-			}
 		}
 	}
 
+	// Set all status indicators to running state
 	setRunning(){
 		if (!test_running){
 			this.setState('info.connection', true, true);
@@ -338,9 +404,18 @@ class WebSpeedy extends utils.Adapter {
 		}
 	}
 
+	// Set all status indicators to not-running state
 	setNotRunning(start){
 
-		// a little delay to ensure all backend processes  are finished
+		// Different delay times for adapter start and running mode
+		let  delay_time = null;
+		if (start ===  true){
+			delay_time = 10;
+		}  else {
+			delay_time = 5000;
+		}
+
+		// a little delay to ensure all backend processes are finished
 		if (stop_timer) {clearTimeout(stop_timer); stop_timer = null;}
 		if (start !==  true){
 			stop_timer = setTimeout( () => {
@@ -352,7 +427,7 @@ class WebSpeedy extends utils.Adapter {
 				down_ready = false;
 				up_ready = false;
 				test_running = false;
-			}, 5000);
+			}, delay_time);
 		}
 	}
 
@@ -360,8 +435,7 @@ class WebSpeedy extends utils.Adapter {
 		this.log.debug('Create_state called for : ' + state + ' with value : ' + value);
 
 		try {
-
-			// Try to get details from state lib, if not use defaults. throw warning is states is not known in attribute list
+			// Try to get details from state lib, if not use defaults. throw warning if states is not known in attribute list
 			if((state_attr[name] === undefined)){this.log.warn('State attribute definition missing for + ' + name);}
 			const writable = (state_attr[name] !== undefined) ?  state_attr[name].write || false : false;
 			const state_name = (state_attr[name] !== undefined) ?  state_attr[name].name || name : name;
@@ -382,7 +456,8 @@ class WebSpeedy extends utils.Adapter {
 				native: {},
 			});
 
-			await this.setState(state, {val: value, ack: true});
+			// Only set value if input != null
+			if (value !== null) {await this.setState(state, {val: value, ack: true});}
 
 			// Subscribe on state changes if writable
 			if (writable === true) {this.subscribeStates(state);}
@@ -399,6 +474,10 @@ class WebSpeedy extends utils.Adapter {
 	onUnload(callback) {
 		try {
 			this.log.info('cleaned everything up...');
+			// clear running timers
+			if (timer) {clearTimeout(timer); timer = null;}
+			if (stop_timer) {clearTimeout(stop_timer); stop_timer = null;}
+
 			callback();
 		} catch (e) {
 			callback();

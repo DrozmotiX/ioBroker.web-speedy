@@ -23,9 +23,13 @@ At first startup it will retrieve best-servers nearby based on ping results and 
 Web-Speedy is build in a way all execution is handled automatically, meaning you don't have a configuration page.
 However, you still can influance some things (see datapoints):
 
-- [test_auto_intervall]	Intervall time for automated test-execution (default = 60, if set to 0 no automated test will run !)
-- [test_best]						Run test now on best-server based on last ping results
-- [test_specific]					Use the dropdown list to choose one of the top 5 servers found in previous scan
+- [ test_best ]				Run test now on best-server based on last ping results
+- [ test_specific ]			Use the dropdown list to choose one of the top 5 servers found in previous scan
+- [ test_duration ]			The maximum length (in seconds) of a single test run (upload or download)
+- [ test_id_always ]		Run test ALWAYS on specific server id [Please find a server id here](https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A)
+- [ test_id_once ]	        Run test ONCE on specific server id [Please find a server id here](https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A)
+- [ test_auto_intervall ]   Intervall time for automated test-execution (default = 60, if set to 0 no automated test will run !)
+
 
 ## Support me
 If you like my work, please feel free to provide a personal donation  
@@ -34,12 +38,21 @@ If you like my work, please feel free to provide a personal donation
 
 ## Changelog
 
-### 0.1.1
+### 0.1.5 New settings possibilities & Code improvements
+* (DutchmanNL) Implemented states for progress in %
+* (DutchmanNL) No automated scan if test_auto_intervall set zo 0
+* (DutchmanNL) Ensure propper running state reset at adapter start
+* (DutchmanNL) Improve code performance  and avoid multiple running instances
+* (DutchmanNL) Implemented adjustable duration time for scan (increase if you see strange test results, like to 20 secons)
+* (DutchmanNL) Implemented state to run test ONCE at specific server [Please find a server id here](https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A)
+* (DutchmanNL) Implemented state to run test ALWAYS at specific server [Please find a server id here](https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A)
+
+### 0.1.1 MegaByte to Megabit calculation and current test speeds implemented
 * (DutchmanNL) Fix wrong status "test runnig"
 * (DutchmanNL) Implement byte to bit calculation for test - results
 * (DutchmanNL) implement current speeds in kb/s during download
 
-### 0.1.0
+### 0.1.0 Beta release for public testing
 * (DutchmanNL) Beta release for public testing
 
 ## License

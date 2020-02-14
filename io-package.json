@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "web-speedy",
-		"version": "0.1.1",
+		"version": "0.1.5",
 		"news": {
+			"0.1.5": {
+				"en": "New settings possibilities & Code improvements",
+				"de": "Neue Einstellungsmöglichkeiten & Codeverbesserungen",
+				"ru": "Новые возможности настройки и улучшения кода",
+				"pt": "Novas possibilidades de configurações e melhorias de código",
+				"nl": "Nieuwe instellingsmogelijkheden & codeverbeteringen",
+				"fr": "Nouvelles possibilités de réglages et améliorations du code",
+				"it": "Nuove possibilità di impostazione e miglioramenti del codice",
+				"es": "Nuevas posibilidades de configuración y mejoras de código",
+				"pl": "Nowe możliwości ustawień i ulepszenia kodu",
+				"zh-cn": "新的设置可能性和代码改进"
+			},
 			"0.1.1": {
 				"en": "MegaByte to Megabit calculation and current test speeds implemented",
 				"de": "MegaByte zu Megabit Berechnung und aktuelle Testgeschwindigkeiten implementiert",
@@ -73,7 +85,7 @@
 		"loglevel": "info",
 		"mode": "daemon",
 		"type": "network",
-		"compact": true,
+		"compact": false,
 		"connectionType": "cloud",
 		"dataSource": "poll",
 		"materialize": true,
@@ -134,6 +146,44 @@
 				"write": true,
 				"def": 30,
 				"unit": "minutes"
+			},
+			"native": {}
+		},
+		{
+			"_id": "test_duration",
+			"type": "state",
+			"common": {
+				"role": "state",
+				"name": "The maximum length (in seconds) of a single test run (upload or download)",
+				"type": "number",
+				"read": true,
+				"write": true,
+				"def": 5,
+				"unit": "seconds"
+			},
+			"native": {}
+		},
+		{
+			"_id": "test_specific_id_once",
+			"type": "state",
+			"common": {
+				"role": "state",
+				"name": "Run test ONCE on specific server id (List : https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
+				"type": "number",
+				"read": true,
+				"write": true
+			},
+			"native": {}
+		},
+		{
+			"_id": "test_specific_id_always",
+			"type": "state",
+			"common": {
+				"role": "state",
+				"name": "Run test ALWAYS on specific server id ( https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
+				"type": "number",
+				"read": true,
+				"write": true
 			},
 			"native": {}
 		}
