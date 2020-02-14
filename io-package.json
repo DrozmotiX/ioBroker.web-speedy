@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "web-speedy",
-		"version": "0.1.5",
+		"version": "0.1.7",
 		"news": {
+			"0.1.7": {
+				"en": "Implemented specific scan by url",
+				"de": "Spezifischer Scan per URL implementiert",
+				"ru": "Реализовано конкретное сканирование по URL",
+				"pt": "Verificação específica implementada por URL",
+				"nl": "Specifieke scan geïmplementeerd via url",
+				"fr": "Analyse spécifique implémentée par URL",
+				"it": "Scansione specifica implementata per url",
+				"es": "Escaneo específico implementado por url",
+				"pl": "Zaimplementowano określony skan według adresu URL",
+				"zh-cn": "通过网址实施特定的扫描"
+			},
 			"0.1.5": {
 				"en": "New settings possibilities & Code improvements",
 				"de": "Neue Einstellungsmöglichkeiten & Codeverbesserungen",
@@ -182,6 +194,30 @@
 				"role": "state",
 				"name": "Run test ALWAYS on specific server id ( https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
 				"type": "number",
+				"read": true,
+				"write": true
+			},
+			"native": {}
+		},
+		{
+			"_id": "test_specific_url_once",
+			"type": "state",
+			"common": {
+				"role": "state",
+				"name": "Run test ONCE on specific server url (List : https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
+				"type": "mixed",
+				"read": true,
+				"write": true
+			},
+			"native": {}
+		},
+		{
+			"_id": "test_specific_url_always",
+			"type": "state",
+			"common": {
+				"role": "state",
+				"name": "Run test ALWAYS on specific server url ( https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
+				"type": "mixed",
 				"read": true,
 				"write": true
 			},

@@ -1,6 +1,6 @@
 {
   "name": "iobroker.web-speedy",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "description": "Web-Speedy enables you to test your internet connection on a regular base and store results in ioBroker !",
   "author": {
     "name": "DutchmanNL",

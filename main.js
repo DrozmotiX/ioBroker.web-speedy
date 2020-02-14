@@ -13,7 +13,7 @@ const state_attr = require(__dirname + '/lib/state_attr.js');
 const speedTest = require('speedtest-net');
 
 // Declare used varaibles
-let run_test = null, test_running = false, down_ready = null, up_ready = null, intervall_time = null, timer = null, stop_timer = null, test_duration = null, test_server = null;
+let run_test = null, test_running = false, down_ready = null, up_ready = null, intervall_time = null, timer = null, stop_timer = null, test_duration = null, test_server_id = null, test_server_url = null;
 
 // const fs = require("fs");
 
@@ -51,6 +51,8 @@ class WebSpeedy extends utils.Adapter {
 		this.subscribeStates('test_duration');
 		this.subscribeStates('test_specific_id_once');
 		this.subscribeStates('test_specific_id_always');
+		this.subscribeStates('test_specific_url_once');
+		this.subscribeStates('test_specific_url_always');
 
 		// Shedule automated execution
 		await this.intervall_runner();
@@ -64,7 +66,7 @@ class WebSpeedy extends utils.Adapter {
 		}
 	}
 
-	async test_run(target_server){
+	async test_run(target_server, url){
 
 		// Get configuration of max duration time for scans
 		const duration_time = await this.getStateAsync('test_duration');
@@ -76,18 +78,33 @@ class WebSpeedy extends utils.Adapter {
 			test_duration = duration_time.val * 1000;
 		}
 
-		// Get configuration of pecific server if configured for scan
+		// Get configuration of pecific server id if configured for scan
 		const server_id = await this.getStateAsync('test_specific_id_always');
-		if (server_id !== null && server_id !== undefined) {test_server = server_id.val;}
+		if (server_id !== null && server_id !== undefined) {test_server_id = server_id.val;}
+
+		// Get configuration of pecific server id if configured for scan
+		const server_url = await this.getStateAsync('test_specific_url_always');
+		if (server_url !== null && server_url !== undefined) {test_server_url = server_url.val;}
 
 		// Execute test run, verify if  specific server is provided else run "normal" test getting best server automatically
 		if (!target_server) {
-			// Run test on provided server
+			// Run test on provided server by id
 			run_test = speedTest({maxTime: test_duration, serverId: target_server});
-		} else if (test_server !== null){
-			// Run test on confured server
-			run_test = speedTest({maxTime: test_duration, serverId: test_server});
-			this.log.warn('!!! Warning : Automated server selection disabled running specific server only !!!');
+		
+		} else if (!url){
+			// Run test on provided server by url
+			run_test = speedTest({maxTime: test_duration, serversUrl: url});
+
+		} else if (test_server_id !== null){
+			// Run test on configured server by id
+			run_test = speedTest({maxTime: test_duration, serverId: test_server_id});
+			this.log.warn('!!! Warning : Automated server selection disabled running specific server by id only !!!');
+		
+		} else if (test_server_url !== null){
+			// Run test on configured server by url
+			run_test = speedTest({maxTime: test_duration, serverId: test_server_url});
+			this.log.warn('!!! Warning : Automated server selection disabled running specific server by url only !!!');
+				
 		} else {
 			// run test on best server found
 			run_test = speedTest({maxTime: test_duration});
@@ -384,6 +401,19 @@ class WebSpeedy extends utils.Adapter {
 						break;
 
 					case('test_specific_id_always'):
+						this.setState('test_specific_id_always', {ack: true});
+						this.log.info('Changed default test server to  : ' + state.val);
+						this.log.warn('!!! Warning : Automated server selection disabled running specific server only !!!');
+						break;
+
+					case('test_specific_url_once'):
+						this.setState('test_specific_id_once', {val: null, ack: true});
+						this.log.info('Run test once on specific server url : ' + state.val);
+						this.test_run(state.val);
+						this.setRunning();
+						break;
+
+					case('test_specific_url_always'):
 						this.setState('test_specific_id_always', {ack: true});
 						this.log.info('Changed default test server to  : ' + state.val);
 						this.log.warn('!!! Warning : Automated server selection disabled running specific server only !!!');

@@ -38,14 +38,17 @@ If you like my work, please feel free to provide a personal donation
 
 ## Changelog
 
+### 0.1.7 Implemented specific scan by url
+* (DutchmanNL) Implemented specific scan by url
+
 ### 0.1.5 New settings possibilities & Code improvements
 * (DutchmanNL) Implemented states for progress in %
 * (DutchmanNL) No automated scan if test_auto_intervall set zo 0
 * (DutchmanNL) Ensure propper running state reset at adapter start
 * (DutchmanNL) Improve code performance  and avoid multiple running instances
-* (DutchmanNL) Implemented adjustable duration time for scan (increase if you see strange test results, like to 20 secons)
-* (DutchmanNL) Implemented state to run test ONCE at specific server [Please find a server id here](https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A)
-* (DutchmanNL) Implemented state to run test ALWAYS at specific server [Please find a server id here](https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A)
+* (DutchmanNL) Implemented adjustable duration time for scan by(increase if you see strange test results, like to 20 secons)
+* (DutchmanNL) Implemented state to run test ONCE by id or URL at specific server [Please find a server id here](https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A)
+* (DutchmanNL) Implemented state to run test ALWAYS by id or URL at specific server [Please find a server id here](https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A)
 
 ### 0.1.1 MegaByte to Megabit calculation and current test speeds implemented
 * (DutchmanNL) Fix wrong status "test runnig"
