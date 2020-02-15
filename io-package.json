@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "web-speedy",
-		"version": "0.1.7",
+		"version": "0.1.8",
 		"news": {
+			"0.1.8": {
+				"en": "Upload speed calculation issue fixed",
+				"de": "Problem bei der Berechnung der Upload-Geschwindigkeit behoben",
+				"ru": "Исправлена ошибка расчета скорости загрузки",
+				"pt": "Corrigido o problema de cálculo da velocidade de upload",
+				"nl": "Probleem met berekening van uploadsnelheid opgelost",
+				"fr": "Problème de calcul de la vitesse de téléchargement résolu",
+				"it": "Problema di calcolo della velocità di caricamento risolto",
+				"es": "Problema de cálculo de velocidad de carga solucionado",
+				"pl": "Naprawiono problem z obliczaniem prędkości wysyłania",
+				"zh-cn": "上传速度计算问题已修复"
+			},
 			"0.1.7": {
 				"en": "Implemented specific scan by url",
 				"de": "Spezifischer Scan per URL implementiert",
@@ -162,6 +174,62 @@
 			"native": {}
 		},
 		{
+			"_id": "test_auto_modus",
+			"type": "state",
+			"common": {
+				"role": "state",
+				"name": "Server mode to run automatically tests with",
+				"type": "number",
+				"read": true,
+				"write": true,
+				"states": {
+					"0" : "Best_Server",
+					"1" : "By_ID",
+					"2" : "By_URL"
+				}
+			},
+			"native": {}
+		},
+		{
+			"_id": "test_best",
+			"type": "state",
+			"common": {
+				"name": "Run test on Best Server now !",
+				"type": "boolean",
+				"read": true,
+				"role": "button",
+				"write": true,
+				"def": false
+			},
+			"native": {}
+		},
+		{
+			"_id": "test_by_ID",
+			"type": "state",
+			"common": {
+				"name": "Run test on specific ID now !",
+				"type": "boolean",
+				"read": true,
+				"role": "button",
+				"write": true,
+				"def": false
+			},
+			"native": {}
+		},
+		{
+			"_id": "test_by_URL",
+			"type": "state",
+			"common": {
+				"name": "Run test on specific URL now !",
+				"type": "boolean",
+				"read": true,
+				"role": "button",
+				"write": true,
+				"def": false
+			},
+			"native": {}
+		},
+		{
 			"_id": "test_duration",
 			"type": "state",
 			"common": {
@@ -176,11 +244,11 @@
 			"native": {}
 		},
 		{
-			"_id": "test_specific_id_once",
+			"_id": "test_specific_id",
 			"type": "state",
 			"common": {
 				"role": "state",
-				"name": "Run test ONCE on specific server id (List : https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
+				"name": "c(List : https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
 				"type": "number",
 				"read": true,
 				"write": true
@@ -188,35 +256,11 @@
 			"native": {}
 		},
 		{
-			"_id": "test_specific_id_always",
+			"_id": "test_specific_url",
 			"type": "state",
 			"common": {
 				"role": "state",
-				"name": "Run test ALWAYS on specific server id ( https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
-				"type": "number",
-				"read": true,
-				"write": true
-			},
-			"native": {}
-		},
-		{
-			"_id": "test_specific_url_once",
-			"type": "state",
-			"common": {
-				"role": "state",
-				"name": "Run test ONCE on specific server url (List : https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
-				"type": "mixed",
-				"read": true,
-				"write": true
-			},
-			"native": {}
-		},
-		{
-			"_id": "test_specific_url_always",
-			"type": "state",
-			"common": {
-				"role": "state",
-				"name": "Run test ALWAYS on specific server url ( https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
+				"name": "Run test on specific server url (List : https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
 				"type": "mixed",
 				"read": true,
 				"write": true

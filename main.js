@@ -13,7 +13,10 @@ const state_attr = require(__dirname + '/lib/state_attr.js');
 const speedTest = require('speedtest-net');
 
 // Declare used varaibles
-let run_test = null, test_running = false, down_ready = null, up_ready = null, intervall_time = null, timer = null, stop_timer = null, test_duration = null, test_server_id = null, test_server_url = null;
+let run_test = null, test_running = false, down_ready = null, up_ready = null;
+let intervall_time = null, timer = null, stop_timer = null, test_duration = null;
+let test_server_id = null, test_server_url = null, running_mode;
+let server_id = null, server_url = null;
 
 // const fs = require("fs");
 
@@ -47,26 +50,27 @@ class WebSpeedy extends utils.Adapter {
 
 		// Subscribe to configuration states
 		this.subscribeStates('test_best');
-		this.subscribeStates('test_auto_intervall');
+		this.subscribeStates('test_by_ID');
+		this.subscribeStates('test_by_URLs');
 		this.subscribeStates('test_duration');
-		this.subscribeStates('test_specific_id_once');
-		this.subscribeStates('test_specific_id_always');
-		this.subscribeStates('test_specific_url_once');
-		this.subscribeStates('test_specific_url_always');
-
+		this.subscribeStates('test_auto_modus');
+		this.subscribeStates('test_specific_id');
+		this.subscribeStates('test_specific_url');
+		this.subscribeStates('test_auto_intervall');
+		
 		// Shedule automated execution
 		await this.intervall_runner();
 
 		// Initial run to get best-servers and run a first test creating all wanted data-points
 		// Ignore if no automated intervall time is set
 		if (intervall_time !== 0) {
-			this.log.info('Web Speedy  startet, getting list of closest servers ');
-			await this.test_run();
+			this.log.info('Web Speedy startet, getting list of closest servers ');
+			await this.test_run(0); // Initial run on best Server
 			this.log.info('Automated scan every : ' + intervall_time + ' minutes :-)');
 		}
 	}
 
-	async test_run(target_server, url){
+	async test_run(run_type, best_id){
 
 		// Get configuration of max duration time for scans
 		const duration_time = await this.getStateAsync('test_duration');
@@ -78,36 +82,60 @@ class WebSpeedy extends utils.Adapter {
 			test_duration = duration_time.val * 1000;
 		}
 
-		// Get configuration of pecific server id if configured for scan
-		const server_id = await this.getStateAsync('test_specific_id_always');
-		if (server_id !== null && server_id !== undefined) {test_server_id = server_id.val;}
 
-		// Get configuration of pecific server id if configured for scan
-		const server_url = await this.getStateAsync('test_specific_url_always');
-		if (server_url !== null && server_url !== undefined) {test_server_url = server_url.val;}
+		// Select running mode, run default in case of error during selection
 
-		// Execute test run, verify if  specific server is provided else run "normal" test getting best server automatically
-		if (!target_server) {
-			// Run test on provided server by id
-			run_test = speedTest({maxTime: test_duration, serverId: target_server});
-		
-		} else if (!url){
-			// Run test on provided server by url
-			run_test = speedTest({maxTime: test_duration, serversUrl: url});
+		try {
 
-		} else if (test_server_id !== null){
-			// Run test on configured server by id
-			run_test = speedTest({maxTime: test_duration, serverId: test_server_id});
-			this.log.warn('!!! Warning : Automated server selection disabled running specific server by id only !!!');
-		
-		} else if (test_server_url !== null){
-			// Run test on configured server by url
-			run_test = speedTest({maxTime: test_duration, serverId: test_server_url});
-			this.log.warn('!!! Warning : Automated server selection disabled running specific server by url only !!!');
-				
-		} else {
-			// run test on best server found
+			switch(run_type){
+
+				case(0):
+					// Run test on Best Server found
+					this.log.info('Run test on on Best Server found');
+					run_test = speedTest({maxTime: test_duration});
+					break;
+					
+				case(1):
+					// Get configuration of pecific server id if configured for scan
+					server_id = await this.getStateAsync('test_specific_id');
+					if (server_id !== null && server_id !== undefined) {test_server_id = '"' + server_id.val + '"';
+						// Run test on configured server by id
+
+						if (best_id){test_server_id = '"' + best_id  + '"';}
+						this.log.info('Run test on configured server by id : ' + test_server_id);
+						run_test = speedTest({maxTime: test_duration, serverId: test_server_id});
+
+						// run_test = speedTest({maxTime: test_duration, serverId: test_server_id});
+					}  else {
+						this.log.warn('Error Case 1 selecting specific server, running Best_Server mode');
+						run_test = speedTest({maxTime: test_duration});
+					}
+
+					break;
+
+				case(2):
+					// Get configuration of pecific server id if configured for scan
+					server_url = await this.getStateAsync('test_specific_url');
+					if (server_url !== null && server_url !== undefined) {test_server_url = '"' + server_url.val + '"';
+						// Run test on configured server by url
+						this.log.info('Run test on configured server by url : ' + test_server_url);
+						run_test = speedTest({maxTime: test_duration, serversUrl: test_server_url});
+					}  else {
+						this.log.warn('Error Case 2 selecting specific server, running Best_Server mode');
+						run_test = speedTest({maxTime: test_duration});
+					}
+					break;
+
+				default:
+					this.log.warn('Error No Case selecting specific server, running Best_Server mode');
+					run_test = speedTest({maxTime: test_duration});
+			}
+
+			
+		} catch (error) {
+			this.log.warn('Error selecting specific server, running Best_Server mode : ' + error);
 			run_test = speedTest({maxTime: test_duration});
+
 		}
 
 		this.log.info('The speed test has been started and will take at maximum ' + (test_duration / 1000) + ' seconds for a single test run');		
@@ -123,7 +151,7 @@ class WebSpeedy extends utils.Adapter {
 
 		// Fired when module has been triggered  providing configuration 
 		run_test.on('config', config => {
-			this.log.debug('Configuration info : ' + JSON.stringify(config));
+			this.log.info('Configuration info : ' + JSON.stringify(config));
 			
 			// Set all states to running state
 			this.setRunning();
@@ -245,7 +273,7 @@ class WebSpeedy extends utils.Adapter {
 				this.subscribeStates('test_specific');
 
 			} catch (error) {
-				this.log.error(error);
+				// this.log.error(error);
 			}
 
 			this.log.info('Closest server found, running test');
@@ -298,8 +326,8 @@ class WebSpeedy extends utils.Adapter {
 							break;
 	
 						case('upload'):
-							this.create_state('Results.' + i + '.upload_MB', 'upload_MB', data[i][x]);
-							this.create_state('Results.' + i + '.upload_Mb', 'upload_Mb', (data[i][x] * 8));
+							this.create_state('Results.' + i + '.upload_MB', 'upload_MB', (data[i][x] / 8 ));
+							this.create_state('Results.' + i + '.upload_Mb', 'upload_Mb', data[i][x]);
 							break;
 	
 						default:
@@ -327,6 +355,16 @@ class WebSpeedy extends utils.Adapter {
 			intervall_time = intervall_time.val;
 		}
 
+		// Get intervall running mode configuration
+		const test_auto_modus = await this.getStateAsync('test_auto_modus');
+		if (!test_auto_modus) {
+			this.log.warn('Invalid value set for auto modus, ignoring value and set to default');
+			running_mode = 0; // Run on best server found
+			await this.setStateAsync('test_auto_modus', {val : 0, ack : true});
+		} else {
+			running_mode = test_auto_modus.val;
+		}
+
 		this.log.debug('Start timer with : ' + (intervall_time * 60000));
 
 		// Disable time if test_auto_intervall is set to 0
@@ -337,7 +375,7 @@ class WebSpeedy extends utils.Adapter {
 			timer = setTimeout( () => {
 				this.log.info('Execute timer with : ' + (intervall_time * 60000) + ' Currently running : ' + test_running);
 				if (!test_running){
-					this.test_run();
+					this.test_run(running_mode);
 				}
 				// Restart intervall at run
 				this.intervall_runner();
@@ -371,15 +409,43 @@ class WebSpeedy extends utils.Adapter {
 				switch (device) {
 
 					case('test_best'):
-						this.log.info('Manuel test startet on best server');
-						this.test_run();
+						this.test_run(0);
 						this.setRunning();
+						this.setState('test_best', {ack: true});
+						this.log.info('Manuel test startet on best server');
+						break;
+
+					case('test_by_ID'):
+						this.test_run(1);
+						this.setRunning();
+						this.log.info('Manuel test startet for specific server ID');
+						this.setState('test_by_ID', {ack: true});
+						break;
+
+					case('test_by_URL'):
+						this.test_run(2);
+						this.setRunning();
+						this.log.info('Manuel test startet for specific server URL');
+						this.setState('test_by_ID', {ack: true});						
 						break;
 
 					case('test_specific'):
-						this.log.info('Manuel test startet on selected server ID : ' + state.val);
-						this.test_run(state.val);
+						this.test_run(1,state.val);
 						this.setRunning();
+						this.log.info('Manuel test startet for best avaiable server ID : ' + state.val);
+						this.setState('test_specific', {val: null, ack: true});
+						break;
+
+					case('test_specific_id'):
+						// Acknowledge ID change
+						this.log.info('Test pecific server ID changed');
+						this.setState('test_specific_id', {ack: true});
+						break;
+
+					case('test_specific_url'):
+						// Acknowledge ID change
+						this.log.info('Test pecific server URL changed');
+						this.setState('test_specific_id', {ack: true});
 						break;
 
 					case('test_auto_intervall'):
@@ -388,35 +454,15 @@ class WebSpeedy extends utils.Adapter {
 						this.log.info('Automated scan changed to every : ' + state.val + ' minutes');
 						break;
 
+					case('test_auto_modus'):
+						this.intervall_runner();
+						this.setState('test_auto_modus', {ack: true});
+						this.log.info('Automated scan mode changed.');
+						break;
+
 					case('test_duration'):
 						this.setState('test_duration', {ack: true});
 						this.log.info('Maximum test duration changed to  : ' + state.val + ' seconds');
-						break;
-
-					case('test_specific_id_once'):
-						this.setState('test_specific_id_once', {val: null, ack: true});
-						this.log.info('Run test once on specific server id : ' + state.val);
-						this.test_run(state.val);
-						this.setRunning();
-						break;
-
-					case('test_specific_id_always'):
-						this.setState('test_specific_id_always', {ack: true});
-						this.log.info('Changed default test server to  : ' + state.val);
-						this.log.warn('!!! Warning : Automated server selection disabled running specific server only !!!');
-						break;
-
-					case('test_specific_url_once'):
-						this.setState('test_specific_id_once', {val: null, ack: true});
-						this.log.info('Run test once on specific server url : ' + state.val);
-						this.test_run(state.val);
-						this.setRunning();
-						break;
-
-					case('test_specific_url_always'):
-						this.setState('test_specific_id_always', {ack: true});
-						this.log.info('Changed default test server to  : ' + state.val);
-						this.log.warn('!!! Warning : Automated server selection disabled running specific server only !!!');
 						break;
 
 					default:
