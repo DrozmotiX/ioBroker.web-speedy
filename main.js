@@ -44,14 +44,13 @@ class WebSpeedy extends utils.Adapter {
 		this.setNotRunning(true);
 
 		// Create state to manually run test & sped indicators
-		this.create_state('test_best', 'test_best', false);  
 		this.create_state('running_download', 'running_download', false);
 		this.create_state('running_upload', 'running_upload', false);
 
 		// Subscribe to configuration states
 		this.subscribeStates('test_best');
 		this.subscribeStates('test_by_ID');
-		this.subscribeStates('test_by_URLs');
+		this.subscribeStates('test_by_URL');
 		this.subscribeStates('test_duration');
 		this.subscribeStates('test_auto_modus');
 		this.subscribeStates('test_specific_id');
@@ -75,13 +74,12 @@ class WebSpeedy extends utils.Adapter {
 		// Get configuration of max duration time for scans
 		const duration_time = await this.getStateAsync('test_duration');
 		if (!duration_time || (duration_time.val * 1000) < 5000) {
-			this.log.warn('Invalid value set for test duration, ignoring value  and set to default');
+			this.log.warn('Invalid value set for test duration, ignoring value and set to default : 15 seconds');
 			test_duration = 15000;
 			await this.setStateAsync('test_duration', {val : 15, ack : true});
 		} else {
 			test_duration = duration_time.val * 1000;
 		}
-
 
 		// Select running mode, run default in case of error during selection
 
@@ -98,12 +96,12 @@ class WebSpeedy extends utils.Adapter {
 				case(1):
 					// Get configuration of pecific server id if configured for scan
 					server_id = await this.getStateAsync('test_specific_id');
-					if (server_id !== null && server_id !== undefined) {test_server_id = '"' + server_id.val + '"';
+					if (server_id !== null && server_id !== undefined) {test_server_id = server_id.val;
 						// Run test on configured server by id
 
-						if (best_id){test_server_id = '"' + best_id  + '"';}
+						if (best_id){test_server_id = best_id;}
 						this.log.info('Run test on configured server by id : ' + test_server_id);
-						run_test = speedTest({maxTime: test_duration, serverId: test_server_id});
+						run_test = speedTest({maxTime: test_duration, serverId: test_server_id.toString()});
 
 						// run_test = speedTest({maxTime: test_duration, serverId: test_server_id});
 					}  else {
@@ -116,10 +114,10 @@ class WebSpeedy extends utils.Adapter {
 				case(2):
 					// Get configuration of pecific server id if configured for scan
 					server_url = await this.getStateAsync('test_specific_url');
-					if (server_url !== null && server_url !== undefined) {test_server_url = '"' + server_url.val + '"';
+					if (server_url !== null && server_url !== undefined) {test_server_url = server_url.val;
 						// Run test on configured server by url
 						this.log.info('Run test on configured server by url : ' + test_server_url);
-						run_test = speedTest({maxTime: test_duration, serversUrl: test_server_url});
+						run_test = speedTest({maxTime: test_duration, serversUrl: test_server_url.toString()});
 					}  else {
 						this.log.warn('Error Case 2 selecting specific server, running Best_Server mode');
 						run_test = speedTest({maxTime: test_duration});
@@ -151,20 +149,20 @@ class WebSpeedy extends utils.Adapter {
 
 		// Fired when module has been triggered  providing configuration 
 		run_test.on('config', config => {
-			this.log.info('Configuration info : ' + JSON.stringify(config));
+			this.log.debug('Configuration info : ' + JSON.stringify(config));
 			
 			// Set all states to running state
 			this.setRunning();
 		});
 
-		// Monitor download progress % (not working)
+		// Monitor download progress %
 		run_test.on('downloadprogress', progress => {
 			this.log.debug('Download progress : ' + progress);
 			this.create_state('running_download_progress', 'running_download_progress', progress);
 
 		});
 
-		// Monitor upload progress % (not working)
+		// Monitor upload progress %
 		run_test.on('uploadprogress', progress => {
 			this.log.debug('Upload progress : ' + progress);
 			this.create_state('running_upload_progress', 'running_upload_progress', progress);
@@ -273,7 +271,7 @@ class WebSpeedy extends utils.Adapter {
 				this.subscribeStates('test_specific');
 
 			} catch (error) {
-				// this.log.error(error);
+				this.log.error(error);
 			}
 
 			this.log.info('Closest server found, running test');
@@ -357,6 +355,8 @@ class WebSpeedy extends utils.Adapter {
 
 		// Get intervall running mode configuration
 		const test_auto_modus = await this.getStateAsync('test_auto_modus');
+
+		// Propper handling of shedule, if NULL set to default (Best Server)
 		if (!test_auto_modus) {
 			this.log.warn('Invalid value set for auto modus, ignoring value and set to default');
 			running_mode = 0; // Run on best server found
@@ -370,7 +370,6 @@ class WebSpeedy extends utils.Adapter {
 		// Disable time if test_auto_intervall is set to 0
 		if (intervall_time !== 0) {
 			// Reset timer (if running) and start new one
-			await this.setStateAsync('test_auto_intervall', {ack : true});
 			if (timer) {clearTimeout(timer); timer = null;}
 			timer = setTimeout( () => {
 				this.log.info('Execute timer with : ' + (intervall_time * 60000) + ' Currently running : ' + test_running);
@@ -387,8 +386,6 @@ class WebSpeedy extends utils.Adapter {
 			// 0 intervall time configured, disabling auto shedule
 			if (timer) {clearTimeout(timer); timer = null;}
 			this.log.warn('!!! Automated test disabled !!!');
-			await this.setStateAsync('test_auto_intervall', {ack : true});
-
 		}
 	}
 

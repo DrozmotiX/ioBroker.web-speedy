@@ -1,31 +1,19 @@
 {
 	"common": {
 		"name": "web-speedy",
-		"version": "0.1.8",
+		"version": "0.2.0",
 		"news": {
-			"0.1.8": {
-				"en": "Upload speed calculation issue fixed",
-				"de": "Problem bei der Berechnung der Upload-Geschwindigkeit behoben",
-				"ru": "Исправлена ошибка расчета скорости загрузки",
-				"pt": "Corrigido o problema de cálculo da velocidade de upload",
-				"nl": "Probleem met berekening van uploadsnelheid opgelost",
-				"fr": "Problème de calcul de la vitesse de téléchargement résolu",
-				"it": "Problema di calcolo della velocità di caricamento risolto",
-				"es": "Problema de cálculo de velocidad de carga solucionado",
-				"pl": "Naprawiono problem z obliczaniem prędkości wysyłania",
-				"zh-cn": "上传速度计算问题已修复"
-			},
-			"0.1.7": {
-				"en": "Implemented specific scan by url",
-				"de": "Spezifischer Scan per URL implementiert",
-				"ru": "Реализовано конкретное сканирование по URL",
-				"pt": "Verificação específica implementada por URL",
-				"nl": "Specifieke scan geïmplementeerd via url",
-				"fr": "Analyse spécifique implémentée par URL",
-				"it": "Scansione specifica implementata per url",
-				"es": "Escaneo específico implementado por url",
-				"pl": "Zaimplementowano określony skan według adresu URL",
-				"zh-cn": "通过网址实施特定的扫描"
+			"0.2.0": {
+				"en": "Initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Первый выпуск",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"zh-cn": "初始发行"
 			},
 			"0.1.5": {
 				"en": "New settings possibilities & Code improvements",
@@ -150,8 +138,8 @@
 			"_id": "running",
 			"type": "state",
 			"common": {
-				"role": "info.status",
-				"name": "Currently Speed test in progress ?",
+				"role": "indicator.working",
+				"name": "Speed test currenlty in progress ?",
 				"type": "boolean",
 				"read": true,
 				"write": false,
@@ -163,7 +151,7 @@
 			"_id": "test_auto_intervall",
 			"type": "state",
 			"common": {
-				"role": "state",
+				"role": "value.interval",
 				"name": "Intervall to run automatically tests with best-server",
 				"type": "number",
 				"read": true,
@@ -177,7 +165,7 @@
 			"_id": "test_auto_modus",
 			"type": "state",
 			"common": {
-				"role": "state",
+				"role": "switch.mode",
 				"name": "Server mode to run automatically tests with",
 				"type": "number",
 				"read": true,
@@ -248,7 +236,7 @@
 			"type": "state",
 			"common": {
 				"role": "state",
-				"name": "c(List : https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
+				"name": "Run test on specific server ID (List : https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
 				"type": "number",
 				"read": true,
 				"write": true
@@ -260,7 +248,7 @@
 			"type": "state",
 			"common": {
 				"role": "state",
-				"name": "Run test on specific server url (List : https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
+				"name": "Run test on specific server URL (List : https://c.speedtest.net/speedtest-servers-static.php?fbclid=IwAR3mLi2N9mwp1zG4Xu96cn4h1Zql6NG26p6GDjctjMftq0YzKKwPk-wme8A )",
 				"type": "mixed",
 				"read": true,
 				"write": true
