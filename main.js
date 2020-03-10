@@ -100,8 +100,9 @@ class WebSpeedy extends utils.Adapter {
 						// Run test on configured server by id
 
 						if (best_id){test_server_id = best_id;}
+						test_server_id = test_server_id.toString();
 						this.log.info('Run test on configured server by id : ' + test_server_id);
-						run_test = speedTest({maxTime: test_duration, serverId: test_server_id.toString()});
+						run_test = speedTest({maxTime: test_duration, serverId: test_server_id});
 
 						// run_test = speedTest({maxTime: test_duration, serverId: test_server_id});
 					}  else {
@@ -116,8 +117,9 @@ class WebSpeedy extends utils.Adapter {
 					server_url = await this.getStateAsync('test_specific_url');
 					if (server_url !== null && server_url !== undefined) {test_server_url = server_url.val;
 						// Run test on configured server by url
+						test_server_url = test_server_url.toString();
 						this.log.info('Run test on configured server by url : ' + test_server_url);
-						run_test = speedTest({maxTime: test_duration, serversUrl: test_server_url.toString()});
+						run_test = speedTest({maxTime: test_duration, serversUrl: test_server_url});
 					}  else {
 						this.log.warn('Error Case 2 selecting specific server, running Best_Server mode');
 						run_test = speedTest({maxTime: test_duration});
