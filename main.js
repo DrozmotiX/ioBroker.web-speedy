@@ -46,7 +46,7 @@ class WebSpeedy extends utils.Adapter {
 		// Create state to manually run test & sped indicators
 		this.create_state('running_download', 'running_download', false);
 		this.create_state('running_upload', 'running_upload', false);
-		setTimeout(sentryTest, 10000);
+
 		// Subscribe to configuration states
 		this.subscribeStates('test_best');
 		this.subscribeStates('test_by_ID');
