@@ -101,6 +101,11 @@
 		"connectionType": "cloud",
 		"dataSource": "poll",
 		"materialize": true,
+		"plugins": {
+			"sentry": {
+				"dsn": "https://240d1b3f0b33449c9ef66dd9fc7255ea@sentry.iobroker.net/25"
+			}
+		},
 		"dependencies": [
 			{
 				"js-controller": ">=1.4.2"
