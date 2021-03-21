@@ -6,7 +6,7 @@
     "name": "DutchmanNL",
     "email": "rdrozda86@gmail.com"
   },
-  "homepage": "https://github.com/iobroker-community-adapters/ioBroker.web-speedy",
+  "homepage": "https://github.com/DrozmotiX/ioBroker.web-speedy",
   "license": "MIT",
   "keywords": [
     "speed",
@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/iobroker-community-adapters/ioBroker.web-speedy"
+    "url": "https://github.com/DrozmotiX/ioBroker.web-speedy"
   },
   "dependencies": {
     "@iobroker/adapter-core": "^2.2.1",
@@ -52,7 +52,7 @@
     "lint": "eslint"
   },
   "bugs": {
-    "url": "https://github.com/iobroker-community-adapters/ioBroker.web-speedy/issues"
+    "url": "https://github.com/DrozmotiX/ioBroker.web-speedy/issues"
   },
   "readmeFilename": "README.md"
 }
