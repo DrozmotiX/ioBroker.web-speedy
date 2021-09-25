@@ -50,7 +50,6 @@ If you like my work, please feel free to provide a personal donation
 ### 0.2.1 bugfix
 * (Xenon-s) bugfix: [issue #162](https://github.com/DrozmotiX/ioBroker.web-speedy/issues/162) Warning messages in the log
 * (Xenon-s) bugfix: [issue #169](https://github.com/DrozmotiX/ioBroker.web-speedy/issues/169) Warning messages in the log 
-* (Xenon-s) bugfix: [issue #121](https://github.com/DrozmotiX/ioBroker.web-speedy/issues/121) Warning messages in the log 
 
 ### 0.2.0 Initial release
 * (DutchmanNL) Attention : Delete all objects beforer adapter start if previous version installed !
