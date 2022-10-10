@@ -23,7 +23,7 @@
     "speedtest-net": "^1.6.2"
   },
   "devDependencies": {
-    "@iobroker/testing": "^2.0.2",
+    "@iobroker/testing": "^4.1.0",
     "@types/chai": "^4.2.9",
     "@types/chai-as-promised": "^7.1.2",
     "@types/gulp": "^4.0.6",
