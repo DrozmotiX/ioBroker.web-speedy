@@ -95,6 +95,7 @@
 		"extIcon": "https://raw.githubusercontent.com/DrozmotiX/ioBroker.web-speedy/master/admin/web-speedy.png",
 		"readme": "https://github.com/DrozmotiX/ioBroker.web-speedy/blob/master/README.md",
 		"loglevel": "info",
+		"tier": 2,
 		"mode": "daemon",
 		"type": "network",
 		"compact": false,
