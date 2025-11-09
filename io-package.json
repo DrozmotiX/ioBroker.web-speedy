@@ -86,7 +86,10 @@
 			"web",
 			"iobroker"
 		],
-		"license": "MIT",
+		"licenseInformation": {
+			"type": "free",
+			"license": "MIT"
+		},
 		"noConfig": true,
 		"platform": "Javascript/Node.js",
 		"main": "main.js",
