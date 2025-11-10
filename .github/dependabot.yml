@@ -1,8 +1,10 @@
+# Dependabot will run on day 6 of each month at 01:09 (Europe/Berlin timezone)
 version: 2
 updates:
-- package-ecosystem: "npm"
-  directory: "/"
-  schedule:
-    interval: "weekly"
-    target-branch: "dependencyAutoUpdate"
-  open-pull-requests-limit: 30
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      target-branch: "dependencyAutoUpdate"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 30
