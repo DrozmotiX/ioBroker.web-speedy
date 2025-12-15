@@ -89,7 +89,6 @@
 		"license": "MIT",
 		"noConfig": true,
 		"platform": "Javascript/Node.js",
-		"main": "main.js",
 		"icon": "web-speedy.png",
 		"enabled": true,
 		"extIcon": "https://raw.githubusercontent.com/DrozmotiX/ioBroker.web-speedy/master/admin/web-speedy.png",
