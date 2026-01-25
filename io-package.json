@@ -83,8 +83,7 @@
 		"keywords": [
 			"speed",
 			"internet",
-			"web",
-			"iobroker"
+			"web"
 		],
 		"license": "MIT",
 		"noConfig": true,

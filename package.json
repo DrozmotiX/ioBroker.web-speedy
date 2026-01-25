@@ -9,10 +9,10 @@
   "homepage": "https://github.com/DrozmotiX/ioBroker.web-speedy",
   "license": "MIT",
   "keywords": [
+    "ioBroker",
     "speed",
     "internet",
-    "web",
-    "iobroker"
+    "web"
   ],
   "repository": {
     "type": "git",
