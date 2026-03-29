@@ -7,7 +7,7 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require('@iobroker/adapter-core');
-const { type } = require('os');
+const { type } = require('node:os');
 
 // Load speedtest-net thank you @ddsol !
 const state_attr = require(__dirname + '/lib/state_attr.js');
@@ -19,7 +19,7 @@ let intervall_time = null, timer = null, stop_timer = null, test_duration = null
 let test_server_id = null, test_server_url = null, running_mode;
 let server_id = null, server_url = null;
 
-// const fs = require("fs");
+// const fs = require("node:fs");
 
 class WebSpeedy extends utils.Adapter {
 
