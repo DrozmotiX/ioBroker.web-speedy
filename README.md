@@ -73,6 +73,8 @@ If you like my work, please feel free to provide a personal donation
 ### 0.1.0 Beta release for public testing
 * (DutchmanNL) Beta release for public testing
 
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## License
 MIT License
 
