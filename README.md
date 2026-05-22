@@ -47,6 +47,10 @@ If you like my work, please feel free to provide a personal donation
 
 ## Changelog
 
+
+### **WORK IN PROGRESS**
+- (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.
+
 ### 0.2.1 bugfix
 * (Xenon-s) bugfix: [issue #162](https://github.com/DrozmotiX/ioBroker.web-speedy/issues/162) Warning messages in the log
 * (Xenon-s) bugfix: [issue #169](https://github.com/DrozmotiX/ioBroker.web-speedy/issues/169) Warning messages in the log 
