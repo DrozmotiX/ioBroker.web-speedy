@@ -1,8 +1,15 @@
 version: 2
 updates:
-- package-ecosystem: "npm"
-  directory: "/"
-  schedule:
-    interval: "weekly"
-    target-branch: "dependencyAutoUpdate"
-  open-pull-requests-limit: 30
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      target-branch: "dependencyAutoUpdate"
+    open-pull-requests-limit: 30
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'cron'
+      timezone: 'Europe/Berlin'
+      cronjob: '44 2 28 * *'
+    open-pull-requests-limit: 15
